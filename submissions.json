@@ -1,0 +1,92 @@
+[
+  {
+    "submission_id": "sub_001",
+    "student_id": "student_abc",
+    "quiz_id": "exam_midterm",
+    "submission_date": "2026-06-07T14:30:00Z",
+    "answers": [
+      {
+        "question_id": "q_001",
+        "student_answer": "CSS",
+        "auto_score": 2.5,
+        "is_correct": true
+      },
+      {
+        "question_id": "q_002",
+        "student_answer": "MongoDB",
+        "auto_score": 2.5,
+        "is_correct": true
+      },
+      {
+        "question_id": "q_003",
+        "student_answer": "Front-end là phần giao diện mà người dùng nhìn thấy và tương tác trực tiếp. Back-end là phần xử lý logic, quản lý cơ sở dữ liệu phía máy chủ mà người dùng không thấy.",
+        "file_url": "https://storage.example.com/submissions/sub_001/bai_lam.jpg",
+        "teacher_score": null,
+        "teacher_comment": ""
+      }
+    ],
+    "total_auto_score": 5.0,
+    "total_score": null,
+    "status": "pending"
+  },
+  {
+    "submission_id": "sub_002",
+    "student_id": "student_def",
+    "quiz_id": "exam_midterm",
+    "submission_date": "2026-06-07T14:45:00Z",
+    "answers": [
+      {
+        "question_id": "q_001",
+        "student_answer": "HTML",
+        "auto_score": 0,
+        "is_correct": false
+      },
+      {
+        "question_id": "q_002",
+        "student_answer": "ReactJS",
+        "auto_score": 0,
+        "is_correct": false
+      },
+      {
+        "question_id": "q_003",
+        "student_answer": "Front-end xây dựng giao diện người dùng bằng HTML, CSS, JavaScript. Back-end phát triển máy chủ và xử lý logic ứng dụng.",
+        "file_url": null,
+        "teacher_score": null,
+        "teacher_comment": ""
+      }
+    ],
+    "total_auto_score": 0,
+    "total_score": null,
+    "status": "pending"
+  },
+  {
+    "submission_id": "sub_003",
+    "student_id": "student_ghi",
+    "quiz_id": "exam_midterm",
+    "submission_date": "2026-06-07T14:20:00Z",
+    "answers": [
+      {
+        "question_id": "q_001",
+        "student_answer": "CSS",
+        "auto_score": 2.5,
+        "is_correct": true
+      },
+      {
+        "question_id": "q_002",
+        "student_answer": "MongoDB",
+        "auto_score": 2.5,
+        "is_correct": true
+      },
+      {
+        "question_id": "q_003",
+        "student_answer": "Phần Front-end là lớp trình bày và tương tác với người dùng cuối cùng. Phần Back-end bao gồm máy chủ, cơ sở dữ liệu, và logic xử lý dữ liệu.",
+        "file_url": "https://storage.example.com/submissions/sub_003/bai_lam_anh.jpg",
+        "teacher_score": 4.5,
+        "teacher_comment": "Giải thích tốt nhưng thiếu một số chi tiết về API và communication."
+      }
+    ],
+    "total_auto_score": 5.0,
+    "total_score": 9.5,
+    "status": "graded"
+  }
+]
