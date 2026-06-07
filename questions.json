@@ -1,0 +1,66 @@
+[
+  {
+    "id": "q_001",
+    "type": "multiple_choice",
+    "content": "Ngôn ngữ nào sau đây được dùng để định dạng giao diện trang web?",
+    "options": ["HTML", "CSS", "Python", "SQL"],
+    "correct_answer": "CSS",
+    "points": 2.5
+  },
+  {
+    "id": "q_002",
+    "type": "multiple_choice",
+    "content": "Đâu là một hệ quản trị cơ sở dữ liệu?",
+    "options": ["NodeJS", "ReactJS", "MongoDB", "CSS Framework"],
+    "correct_answer": "MongoDB",
+    "points": 2.5
+  },
+  {
+    "id": "q_003",
+    "type": "essay",
+    "content": "Hãy nêu sự khác biệt chính giữa Front-end và Back-end trong phát triển web?",
+    "options": [],
+    "correct_answer": "",
+    "points": 5.0
+  },
+  {
+    "id": "q_004",
+    "type": "multiple_choice",
+    "content": "Framework nào dưới đây được sử dụng để xây dựng ứng dụng web phía client?",
+    "options": ["Express.js", "React", "Flask", "Django"],
+    "correct_answer": "React",
+    "points": 2.5
+  },
+  {
+    "id": "q_005",
+    "type": "multiple_choice",
+    "content": "RESTful API sử dụng những phương thức HTTP nào để thao tác dữ liệu?",
+    "options": ["GET, POST, PUT, DELETE", "READ, WRITE, UPDATE, REMOVE", "SELECT, INSERT, UPDATE, DELETE", "FETCH, PUSH, MODIFY, CLEAR"],
+    "correct_answer": "GET, POST, PUT, DELETE",
+    "points": 2.5
+  },
+  {
+    "id": "q_006",
+    "type": "essay",
+    "content": "Giải thích khái niệm về Version Control (kiểm soát phiên bản) và tại sao nó quan trọng trong phát triển phần mềm?",
+    "options": [],
+    "correct_answer": "",
+    "points": 5.0
+  },
+  {
+    "id": "q_007",
+    "type": "multiple_choice",
+    "content": "Cơ sở dữ liệu nào là loại SQL?",
+    "options": ["MongoDB", "Firebase", "PostgreSQL", "Cassandra"],
+    "correct_answer": "PostgreSQL",
+    "points": 2.5
+  },
+  {
+    "id": "q_008",
+    "type": "multiple_choice",
+    "content": "Tệp .env được sử dụng để làm gì?",
+    "options": ["Lưu trữ biến môi trường và thông tin nhạy cảm", "Định cấu hình bộ định tuyến", "Tạo cơ sở dữ liệu", "Viết tài liệu API"],
+    "correct_answer": "Lưu trữ biến môi trường và thông tin nhạy cảm",
+    "points": 2.5
+  }
+]
