@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Tập Thông Minh Bằng AI</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; min-height: 100vh; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+        
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: #2c3e50; font-size: 32px; margin-bottom: 10px; }
+        .subtitle { color: #7f8c8d; font-size: 15px; }
+        
+        .upload-section { text-align: center; padding: 40px; border: 3px dashed #3498db; background: #eef7fc; border-radius: 12px; margin-bottom: 25px; transition: 0.3s; }
+        .upload-section:hover { border-color: #2980b9; background: #e8f4f8; }
+        
+        .upload-btn { 
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white; 
+            padding: 15px 40px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            display: inline-block;
+            font-size: 16px;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .upload-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        #camera-input { display: none; }
+        
+        #status-text {
+            margin-top: 15px;
+            color: #555;
+            font-weight: 500;
+            min-height: 25px;
+            font-size: 15px;
+        }
+        
+        .loading { color: #3498db; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+        
+        .timer-box { 
+            display: none; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .timer-box h3 { font-size: 20px; flex: 1; }
+        .timer { 
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            padding: 8px 20px; 
+            border-radius: 25px; 
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .question-box { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            border-left: 5px solid #3498db;
+            transition: 0.3s;
+        }
+        .question-box:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        
+        .question-type {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .question-type.essay { background: #e74c3c; }
+        
+        .question-text { 
+            font-weight: 600; 
+            margin-bottom: 12px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .options-list { 
+            list-style: none; 
+            margin-top: 12px;
+        }
+        .option-item { 
+            margin: 10px 0; 
+            display: flex; 
+            align-items: center;
+        }
+        .option-item input { 
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .option-item label {
+            cursor: pointer;
+            flex: 1;
+            color: #555;
+        }
+        
+        textarea { 
+            width: 100%; 
+            height: 120px; 
+            padding: 12px; 
+            margin-top: 10px; 
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        
+        .submit-btn { 
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white; 
+            border: none; 
+            padding: 15px 40px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            width: 100%; 
+            display: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+        }
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        #result-box { 
+            margin-top: 25px; 
+            padding: 25px; 
+            background: linear-gradient(135deg, #e8f8f5, #f0fdf4);
+            border-radius: 8px; 
+            display: none; 
+            border-left: 5px solid #27ae60;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        #result-box h3 {
+            color: #27ae60;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        
+        .score-display {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        
+        .ai-review {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        hr { margin: 15px 0; border: 0; border-top: 2px solid #e0e0e0; }
+        
+        .reset-btn {
+            background: #95a5a6;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .reset-btn:hover { background: #7f8c8d; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>📸 Ôn Tập Thông Minh Bằng AI</h1>
+        <p class="subtitle">Chụp ảnh đề bài → AI tạo bài tập → Làm bài → AI chấm điểm & sửa lỗi</p>
+    </header>
+    
+    <div class="upload-section" id="upload-area">
+        <label for="camera-input" class="upload-btn">
+            📷 Chụp hoặc Tải Đề Bài Lên
+        </label>
+        <input type="file" accept="image/*" capture="environment" id="camera-input">
+        <p id="status-text"></p>
+    </div>
+
+    <div class="timer-box" id="timer-box">
+        <h3 id="quiz-title">📝 Bài Tập Ôn Tập</h3>
+        <div class="timer">⏱️ <span id="time-left">15:00</span></div>
+    </div>
+
+    <form id="quiz-form">
+        <div id="questions-container"></div>
+        <button type="submit" class="submit-btn" id="submit-btn">✅ Nộp Bài Làm</button>
+    </form>
+
+    <div id="result-box">
+        <h3>📊 Kết Quả Ôn Tập</h3>
+        <div id="result-content"></div>
+        <button class="reset-btn" onclick="location.reload()">🔄 Ôn Tập Lại</button>
+    </div>
+</div>
+
+<script>
+    const cameraInput = document.getElementById('camera-input');
+    const statusText = document.getElementById('status-text');
+    const questionsContainer = document.getElementById('questions-container');
+    const submitBtn = document.getElementById('submit-btn');
+    const timerBox = document.getElementById('timer-box');
+    const quizForm = document.getElementById('quiz-form');
+    const resultBox = document.getElementById('result-box');
+    const resultContent = document.getElementById('result-content');
+    
+    let countdownInterval;
+    let originalQuizData = null;
+
+    /**
+     * 1. Khi học sinh chụp ảnh xong
+     */
+    cameraInput.addEventListener('change', async (e) => {
+        if (!e.target.files.length) return;
+        
+        const file = e.target.files[0];
+        
+        // Kiểm tra định dạng
+        if (!file.type.startsWith('image/')) {
+            showStatus('❌ Vui lòng chọn file ảnh', 'error');
+            return;
+        }
+        
+        // Kiểm tra kích thước (tối đa 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            showStatus('❌ File quá lớn! Tối đa 10MB', 'error');
+            return;
+        }
+        
+        showStatus('🔄 AI đang đọc ảnh và chuyển thành bài tập, đợi vài giây...', 'loading');
+        
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch('/api/upload-quiz', { 
+                method: 'POST', 
+                body: formData 
+            });
+            
+            if (!response.ok) throw new Error('Upload failed');
+            
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('upload-area').style.display = 'none';
+                originalQuizData = data.quiz;
+                hienThiDeBai(data.quiz);
+                batDauDemNguoc(15 * 60);
+                showStatus('✅ Đã tạo bài tập thành công!', 'success');
+            } else {
+                showStatus('❌ ' + (data.message || 'Không thể đọc được ảnh. Vui lòng chụp rõ nét hơn!'), 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showStatus('❌ Lỗi kết nối hệ thống. Vui lòng thử lại!', 'error');
+        }
+    });
+
+    /**
+     * Hiển thị trạng thái
+     */
+    function showStatus(message, type = 'normal') {
+        statusText.textContent = message;
+        statusText.className = type;
+    }
+
+    /**
+     * 2. Hàm vẽ giao diện bài tập từ dữ liệu AI trả về
+     */
+    function hienThiDeBai(quiz) {
+        document.getElementById('quiz-title').innerText = '📝 ' + (quiz.quiz_title || 'Bài Tập Ôn Tập');
+        timerBox.style.display = 'flex';
+        submitBtn.style.display = 'block';
+
+        questionsContainer.innerHTML = '';
+        
+        quiz.questions.forEach((q, index) => {
+            const qBox = document.createElement('div');
+            qBox.className = 'question-box';
+            
+            if (q.type === 'multiple_choice') {
+                const typeSpan = document.createElement('span');
+                typeSpan.className = 'question-type';
+                typeSpan.textContent = '⭐ TRẮC NGHIỆM';
+                
+                let optionsHtml = '<ul class="options-list">';
+                const letters = ['A', 'B', 'C', 'D'];
+                q.options.forEach((opt, idx) => {
+                    optionsHtml += `
+                        <li class="option-item">
+                            <input type="radio" id="q_${index}_${idx}" name="q_${index}" value="${opt}">
+                            <label for="q_${index}_${idx}"><strong>${letters[idx]}.</strong> ${opt}</label>
+                        </li>`;
+                });
+                optionsHtml += '</ul>';
+                
+                qBox.innerHTML = `
+                    ${typeSpan.outerHTML}
+                    <div class="question-text">Câu ${index + 1}: ${q.content}</div>
+                    ${optionsHtml}
+                `;
+            } else {
+                const typeSpan = document.createElement('span');
+                typeSpan.className = 'question-type essay';
+                typeSpan.textContent = '📝 TỰ LUẬN';
+                
+                qBox.innerHTML = `
+                    ${typeSpan.outerHTML}
+                    <div class="question-text">Câu ${index + 1}: ${q.content}</div>
+                    <textarea name="q_${index}" placeholder="Nhập câu trả lời tự luận của bạn..."></textarea>
+                `;
+            }
+            questionsContainer.appendChild(qBox);
+        });
+    }
+
+    /**
+     * 3. Hàm tính thời gian
+     */
+    function batDauDemNguoc(seconds) {
+        const display = document.getElementById('time-left');
+        countdownInterval = setInterval(() => {
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            display.innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            
+            if (seconds <= 60) {
+                display.style.color = '#e74c3c';
+            }
+            
+            if (--seconds < 0) {
+                clearInterval(countdownInterval);
+                alert("⏰ Hết giờ! Hệ thống sẽ tự động nộp bài của bạn.");
+                quizForm.dispatchEvent(new Event('submit'));
+            }
+        }, 1000);
+    }
+
+    /**
+     * 4. Xử lý Nộp bài và gửi cho AI kiểm tra
+     */
+    quizForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearInterval(countdownInterval);
+        
+        submitBtn.disabled = true;
+        submitBtn.innerText = "🔄 Đang chấm bài và phân tích bằng AI...";
+
+        const formData = new FormData(quizForm);
+        const studentAnswers = [];
+        const essayAnswers = [];
+
+        originalQuizData.questions.forEach((q, index) => {
+            const ans = formData.get(`q_${index}`) || "";
+            if (q.type === 'multiple_choice') {
+                const isCorrect = ans === q.correct_answer;
+                studentAnswers.push({ 
+                    question_id: `q_${index}`,
+                    question: q.content, 
+                    student_answer: ans, 
+                    correct_answer: q.correct_answer,
+                    is_correct: isCorrect,
+                    points: isCorrect ? (q.points || 2.5) : 0
+                });
+            } else {
+                essayAnswers.push({ 
+                    question_id: `q_${index}`,
+                    question: q.content, 
+                    student_answer: ans,
+                    points: q.points || 5
+                });
+            }
+        });
+
+        try {
+            const response = await fetch('/api/grade-quiz', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    studentAnswers, 
+                    essayAnswers,
+                    quiz_title: originalQuizData.quiz_title
+                })
+            });
+
+            if (!response.ok) throw new Error('Grading failed');
+            
+            const result = await response.json();
+            hienThiKetQua(result);
+        } catch (error) {
+            console.error('Error:', error);
+            resultContent.innerHTML = '<p class="error">❌ Lỗi khi chấm bài. Vui lòng thử lại!</p>';
+            resultBox.style.display = 'block';
+        }
+    });
+
+    /**
+     * 5. Hiển thị kết quả chấm lỗi lên màn hình
+     */
+    function hienThiKetQua(result) {
+        let html = '';
+        
+        // Điểm trắc nghiệm
+        if (result.mcQuestions && result.mcQuestions.length > 0) {
+            html += `<div class="score-display">
+                <strong>⭐ Điểm Trắc Nghiệm:</strong> ${result.mcScore} / ${result.mcTotalPoints} điểm
+            </div>`;
+        }
+        
+        // Phân tích chi tiết trắc nghiệm
+        if (result.mcDetails && result.mcDetails.length > 0) {
+            html += '<div style="margin-top: 15px;"><h4 style="color: #2c3e50; margin-bottom: 10px;">📋 Chi tiết trắc nghiệm:</h4>';
+            result.mcDetails.forEach((detail, idx) => {
+                const statusIcon = detail.is_correct ? '✅' : '❌';
+                html += `
+                    <div style="background: white; padding: 10px; margin: 8px 0; border-radius: 6px; border-left: 3px solid ${detail.is_correct ? '#27ae60' : '#e74c3c'};">
+                        <strong>${statusIcon} Câu ${idx + 1}:</strong> ${detail.student_answer || '(Chưa trả lời)'}
+                        ${!detail.is_correct ? `<br/><small style="color: #e74c3c;">Đáp án đúng: ${detail.correct_answer}</small>` : ''}
+                    </div>`;
+            });
+            html += '</div>';
+        }
+        
+        html += '<hr/>';
+        
+        // Đánh giá tự luận từ AI
+        if (result.essayAnalysis || result.aiReview) {
+            html += '<h4 style="color: #2c3e50; margin: 15px 0 10px 0;">🤖 Đánh Giá Tự Luận Từ AI:</h4>';
+            html += '<div class="ai-review">' + (result.essayAnalysis || result.aiReview || 'Chưa có đánh giá') + '</div>';
+        }
+        
+        // Điểm tổng
+        if (result.totalScore !== undefined) {
+            html = `<div class="score-display"><strong>📊 Tổng Điểm:</strong> ${result.totalScore} / ${result.totalPoints} điểm</div>` + html;
+        }
+        
+        resultContent.innerHTML = html;
+        resultBox.style.display = 'block';
+        
+        quizForm.style.display = 'none';
+        timerBox.style.display = 'none';
+        
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+</script>
+
+</body>
+</html>
