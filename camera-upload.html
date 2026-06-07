@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chụp Ảnh Đề Bài - Hệ Thống Ôn Tập</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+        
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: #2c3e50; font-size: 28px; margin-bottom: 10px; }
+        .subtitle { color: #7f8c8d; font-size: 14px; }
+        
+        /* Camera Input Section */
+        .camera-section { text-align: center; margin: 30px 0; }
+        .camera-button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+        .camera-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        #camera-input { display: none; }
+        
+        #status-text {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+            min-height: 20px;
+        }
+        
+        .loading { color: #3498db; font-weight: bold; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+        
+        /* Preview Section */
+        .preview-section {
+            margin: 20px 0;
+            display: none;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        /* Quiz Display Section */
+        .quiz-section {
+            margin-top: 30px;
+            display: none;
+        }
+        .quiz-title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .question-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .question-type {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .question-type.essay { background: #e74c3c; }
+        
+        .question-text {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        
+        .options-list {
+            list-style: none;
+            margin: 10px 0;
+        }
+        .option-item {
+            padding: 8px 0;
+            color: #555;
+        }
+        .option-item::before {
+            content: "◯ ";
+            color: #3498db;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 13px;
+        }
+        .btn-retry {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-retry:hover { background: #7f8c8d; }
+        
+        .btn-start {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-start:hover { background: #229954; }
+        
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-delete:hover { background: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>📸 Chụp Ảnh Đề Bài</h1>
+        <p class="subtitle">Chụp ảnh đề bài và hệ thống sẽ tự động tạo bài tập cho bạn</p>
+    </header>
+
+    <!-- Camera Input Section -->
+    <div class="camera-section">
+        <label for="camera-input" class="camera-button">
+            📷 Chụp Ảnh Đề Bài
+        </label>
+        <input type="file" accept="image/*" capture="environment" id="camera-input">
+        <p id="status-text"></p>
+    </div>
+
+    <!-- Preview Section -->
+    <div class="preview-section" id="preview-section">
+        <img id="preview-image" class="preview-image" alt="Preview">
+    </div>
+
+    <!-- Quiz Display Section -->
+    <div class="quiz-section" id="quiz-section">
+        <div class="quiz-title" id="quiz-title"></div>
+        <div id="questions-container"></div>
+        <div class="action-buttons">
+            <button class="btn btn-start" onclick="startQuiz()">✅ Bắt Đầu Làm Bài</button>
+            <button class="btn btn-delete" onclick="deleteQuiz()">🗑️ Chụp Lại</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = '/api'; // Thay đổi theo địa chỉ server của bạn
+
+    /**
+     * Xử lý khi người dùng chọn ảnh từ camera hoặc thư viện
+     */
+    document.getElementById('camera-input').addEventListener('change', async function(e) {
+        if(e.target.files.length === 0) return;
+
+        const file = e.target.files[0];
+        
+        // Kiểm tra định dạng file
+        if (!file.type.startsWith('image/')) {
+            showStatus('❌ Vui lòng chọn file ảnh', 'error');
+            return;
+        }
+
+        // Kiểm tra kích thước file (tối đa 10MB)
+        const maxSize = 10 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showStatus('❌ File quá lớn! Kích thước tối đa là 10MB', 'error');
+            return;
+        }
+
+        // Hiển thị trạng thái loading
+        showStatus('🔄 Đang quét ảnh và tạo bài tập, vui lòng đợi...', 'loading');
+
+        // Hiển thị preview ảnh
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('preview-image').src = e.target.result;
+            document.getElementById('preview-section').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+
+        // Gửi file ảnh lên server để xử lý
+        await uploadAndConvertImage(file);
+    });
+
+    /**
+     * Gửi ảnh lên server và nhận bài tập từ AI
+     */
+    async function uploadAndConvertImage(file) {
+        try {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch(`${API_BASE_URL}/convert-image-to-quiz`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const quizData = await response.json();
+            
+            if (quizData.success && quizData.data) {
+                showStatus('✅ Quét ảnh thành công! Vui lòng kiểm tra bài tập', 'success');
+                displayQuiz(quizData.data);
+            } else {
+                showStatus('❌ Không thể xử lý ảnh: ' + (quizData.message || 'Lỗi không xác định'), 'error');
+            }
+
+        } catch (error) {
+            console.error('Lỗi:', error);
+            showStatus('❌ Lỗi kết nối! Vui lòng kiểm tra kết nối internet', 'error');
+        }
+    }
+
+    /**
+     * Hiển thị trạng thái lên giao diện
+     */
+    function showStatus(message, type = 'normal') {
+        const statusElement = document.getElementById('status-text');
+        statusElement.textContent = message;
+        statusElement.className = type;
+    }
+
+    /**
+     * Hiển thị quiz lên màn hình
+     */
+    function displayQuiz(quizData) {
+        document.getElementById('quiz-title').textContent = quizData.quiz_title || 'Bài Tập Ôn Tập';
+        
+        const questionsContainer = document.getElementById('questions-container');
+        questionsContainer.innerHTML = '';
+
+        if (!quizData.questions || quizData.questions.length === 0) {
+            questionsContainer.innerHTML = '<p style="text-align: center; color: #e74c3c;">❌ Không tìm thấy câu hỏi trong ảnh</p>';
+            document.getElementById('quiz-section').style.display = 'block';
+            return;
+        }
+
+        quizData.questions.forEach((question, index) => {
+            const questionElement = createQuestionElement(question, index + 1);
+            questionsContainer.appendChild(questionElement);
+        });
+
+        document.getElementById('quiz-section').style.display = 'block';
+    }
+
+    /**
+     * Tạo HTML element cho một câu hỏi
+     */
+    function createQuestionElement(question, questionNumber) {
+        const div = document.createElement('div');
+        div.className = 'question-item';
+
+        let html = `
+            <span class="question-type ${question.type === 'essay' ? 'essay' : ''}">
+                ${question.type === 'essay' ? '📝 TỰ LUẬN' : '⭐ TRẮC NGHIỆM'}
+            </span>
+            <div class="question-text">Câu ${questionNumber}: ${question.content}</div>
+        `;
+
+        if (question.type === 'multiple_choice' && question.options && question.options.length > 0) {
+            html += '<ul class="options-list">';
+            question.options.forEach((option, idx) => {
+                const letters = ['A', 'B', 'C', 'D'];
+                html += `<li class="option-item">${letters[idx] || idx}. ${option}</li>`;
+            });
+            html += '</ul>';
+
+            if (question.correct_answer) {
+                html += `<small style="color: #27ae60; font-weight: bold;">💡 Đáp án: ${question.correct_answer}</small>`;
+            }
+        }
+
+        div.innerHTML = html;
+        return div;
+    }
+
+    /**
+     * Bắt đầu làm bài
+     */
+    function startQuiz() {
+        // Lưu quiz data vào localStorage
+        const quizTitle = document.getElementById('quiz-title').textContent;
+        localStorage.setItem('currentQuiz', JSON.stringify({
+            title: quizTitle,
+            timestamp: new Date().toISOString()
+        }));
+
+        showStatus('✅ Chuyển hướng đến trang làm bài...', 'success');
+        
+        // Chuyển hướng sau 1 giây
+        setTimeout(() => {
+            window.location.href = '/quiz';
+        }, 1000);
+    }
+
+    /**
+     * Xóa quiz hiện tại và chụp lại
+     */
+    function deleteQuiz() {
+        document.getElementById('camera-input').value = '';
+        document.getElementById('preview-section').style.display = 'none';
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('status-text').textContent = '';
+        showStatus('✨ Sẵn sàng chụp ảnh mới', 'normal');
+    }
+
+    // Khi người dùng quay lại trang này, reset form
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            deleteQuiz();
+        }
+    });
+</script>
+
+</body>
+</html>
